@@ -764,10 +764,26 @@ let list st ~short =
                   (OpamPackage.version_to_string inst))]
         with Not_found -> OpamConsole.colorise `yellow "(uninstalled)", []
       in
+      let vcs_revision = 
+        let url = OpamStd.Option.default OpamFile.URL.empty url in
+        match kind with 
+        | "git" | "hg" | "darcs" ->
+          if (OpamCoreConfig.(!r.verbose_level >= 3))
+          then 
+          let rev_opt =
+            OpamProcess.Job.run 
+            @@ OpamRepository.revision
+               (OpamSwitchState.source_dir st nv)
+               (OpamFile.URL.url url) in 
+          let rev = OpamStd.Option.default OpamPackage.Version.default rev_opt in 
+          OpamPackage.Version.to_string rev
+          else ""
+        | _ -> "" 
+      in
       [ OpamPackage.to_string nv;
         state;
         OpamConsole.colorise `blue kind;
-        String.concat " " (target::extra) ]
+        String.concat " " (target::vcs_revision::extra) ]
     with Not_found ->
       [ OpamPackage.to_string nv;
         OpamConsole.colorise `red " (no definition found)" ]
