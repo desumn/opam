@@ -764,29 +764,25 @@ let list st ~short =
                   (OpamPackage.version_to_string inst))]
         with Not_found -> OpamConsole.colorise `yellow "(uninstalled)", []
       in
-      let vcs_revision = 
-        let url = OpamStd.Option.default OpamFile.URL.empty url in
-        let url = (OpamFile.URL.url url) in
-        match url.OpamUrl.backend with 
+      let vcs_revision =
+        let open OpamStd.Option.Op in
+        url >>| OpamFile.URL.url >>= fun url ->
+        match url.OpamUrl.backend with
         | #OpamUrl.version_control ->
-          let rev_opt =
-            OpamProcess.Job.run 
-            @@ OpamRepository.revision
-               (OpamSwitchState.source_dir st nv)
-               url in 
-          let rev = 
-            match rev_opt with 
-            | None -> "(error while fetching current revision)"
-            | Some ver -> OpamPackage.Version.to_string ver in 
-          Printf.sprintf "(%s)" 
-          rev
-        | _ -> "" 
-      in 
+          let srcdir = OpamSwitchState.source_dir st nv in
+          let color, rev =
+            match OpamProcess.Job.run (OpamRepository.revision srcdir url) with
+            | None -> (`red, "error while fetching current revision")
+            | Some ver -> (`magenta, OpamPackage.Version.to_string ver)
+          in
+          Some (OpamConsole.colorise color ("("^rev^")"))
+        | _ -> None
+      in
       [ OpamPackage.to_string nv;
         state;
         OpamConsole.colorise `blue kind;
         String.concat " " (target::extra);
-        vcs_revision ]
+        Option.default "" vcs_revision ]
     with Not_found ->
       [ OpamPackage.to_string nv;
         OpamConsole.colorise `red " (no definition found)" ]
