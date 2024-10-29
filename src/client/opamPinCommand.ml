@@ -775,7 +775,8 @@ let list st ~short =
                (OpamSwitchState.source_dir st nv)
                url in 
           let rev = OpamStd.Option.default OpamPackage.Version.default rev_opt in 
-          OpamPackage.Version.to_string rev
+          Printf.sprintf "(%s)" 
+          (OpamPackage.Version.to_string rev)
         | _ -> "" 
       in 
       [ OpamPackage.to_string nv;
