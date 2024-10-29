@@ -784,7 +784,8 @@ let list st ~short =
       [ OpamPackage.to_string nv;
         state;
         OpamConsole.colorise `blue kind;
-        String.concat " " (target::vcs_revision::extra) ]
+        String.concat " " (target::extra);
+        vcs_revision ]
     with Not_found ->
       [ OpamPackage.to_string nv;
         OpamConsole.colorise `red " (no definition found)" ]
