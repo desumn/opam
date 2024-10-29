@@ -766,15 +766,16 @@ let list st ~short =
       in
       let vcs_revision = 
         let url = OpamStd.Option.default OpamFile.URL.empty url in
-        match kind with 
-        | "git" | "hg" | "darcs" ->
+        let url = (OpamFile.URL.url url) in
+        match url.OpamUrl.backend with 
+        | #OpamUrl.version_control ->
           if (OpamCoreConfig.(!r.verbose_level >= 3))
           then 
           let rev_opt =
             OpamProcess.Job.run 
             @@ OpamRepository.revision
                (OpamSwitchState.source_dir st nv)
-               (OpamFile.URL.url url) in 
+               url in 
           let rev = OpamStd.Option.default OpamPackage.Version.default rev_opt in 
           OpamPackage.Version.to_string rev
           else ""
