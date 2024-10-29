@@ -769,8 +769,6 @@ let list st ~short =
         let url = (OpamFile.URL.url url) in
         match url.OpamUrl.backend with 
         | #OpamUrl.version_control ->
-          if (OpamCoreConfig.(!r.verbose_level >= 3))
-          then 
           let rev_opt =
             OpamProcess.Job.run 
             @@ OpamRepository.revision
@@ -778,7 +776,6 @@ let list st ~short =
                url in 
           let rev = OpamStd.Option.default OpamPackage.Version.default rev_opt in 
           OpamPackage.Version.to_string rev
-          else ""
         | _ -> "" 
       in 
       [ OpamPackage.to_string nv;
