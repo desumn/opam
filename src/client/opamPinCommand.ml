@@ -774,9 +774,12 @@ let list st ~short =
             @@ OpamRepository.revision
                (OpamSwitchState.source_dir st nv)
                url in 
-          let rev = OpamStd.Option.default OpamPackage.Version.default rev_opt in 
+          let rev = 
+            match rev_opt with 
+            | None -> "(error while fetching current revision)"
+            | Some ver -> OpamPackage.Version.to_string ver in 
           Printf.sprintf "(%s)" 
-          (OpamPackage.Version.to_string rev)
+          rev
         | _ -> "" 
       in 
       [ OpamPackage.to_string nv;
