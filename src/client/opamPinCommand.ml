@@ -782,7 +782,7 @@ let list st ~short =
         state;
         OpamConsole.colorise `blue kind;
         String.concat " " (target::extra);
-        Option.default "" vcs_revision ]
+        OpamStd.Option.default "" vcs_revision ]
     with Not_found ->
       [ OpamPackage.to_string nv;
         OpamConsole.colorise `red " (no definition found)" ]
